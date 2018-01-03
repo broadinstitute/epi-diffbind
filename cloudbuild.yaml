@@ -5,7 +5,7 @@ steps:
 - name: gcr.io/cloud-builders/docker
   args: ['build', '--cache-from', 'us.gcr.io/${PROJECT_ID}/diffbind', '-t', 'us.gcr.io/${PROJECT_ID}/diffbind', '.']
 - name: gcr.io/cloud-builders/docker
-  args: ['build', '-t', 'us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}', '.']
+  args: ['tag', 'us.gcr.io/${PROJECT_ID}/diffbind', 'us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}']
 images:
 - us.gcr.io/${PROJECT_ID}/diffbind
 - us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}
