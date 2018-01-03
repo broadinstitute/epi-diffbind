@@ -1,3 +1,4 @@
+timeout: 30m
 steps:
 - name: gcr.io/cloud-builders/docker
   args: ['pull', 'us.gcr.io/${PROJECT_ID}/diffbind']
