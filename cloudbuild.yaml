@@ -1,11 +1,11 @@
 timeout: 30m
 steps:
 - name: gcr.io/cloud-builders/docker
-  args: ['pull', 'gcr.io/${PROJECT_ID}/diffbind']
+  args: ['pull', 'us.gcr.io/${PROJECT_ID}/diffbind']
 - name: gcr.io/cloud-builders/docker
-  args: ['build', '--cache-from', 'gcr.io/${PROJECT_ID}/diffbind', '-t', 'gcr.io/${PROJECT_ID}/diffbind', '.']
+  args: ['build', '--cache-from', 'us.gcr.io/${PROJECT_ID}/diffbind', '-t', 'us.gcr.io/${PROJECT_ID}/diffbind', '.']
 - name: gcr.io/cloud-builders/docker
-  args: ['build', '-t', 'gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}', '.']
+  args: ['build', '-t', 'us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}', '.']
 images:
-- gcr.io/${PROJECT_ID}/diffbind
-- gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}
+- us.gcr.io/${PROJECT_ID}/diffbind
+- us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}
