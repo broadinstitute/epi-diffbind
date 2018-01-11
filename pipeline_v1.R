@@ -13,7 +13,7 @@ data <- dba(sampleSheet="input.csv")
 date <- format(Sys.Date(), format="%Y-%m-%d")
 
 
-pdf("input.pdf", paper="a4") #eg. input.v1.pdf
+pdf("input.pdf", paper="a4")
 plot(data, main="", sub="")
 # need to look into this to see if the data can be fit to the page
 
