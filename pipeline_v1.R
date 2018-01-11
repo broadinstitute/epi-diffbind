@@ -29,9 +29,10 @@ header <- paste(date, initials, sep="-")
 input <- paste("input.v", version, ".pdf", sep="")
 pdf(input) #eg. input.v1.pdf
 plot(data, main="", sub="")
+# need to look into this to see if the data can be fit to the page
 
-# still thinking about parameterizing the 1 and 0.5 below, but want to better
-# understand the numbers' purpose before doing so
+# the 1 and 0.5 in the two lines below might change depending on what
+# we eventually do with the resizing issue referenced above
 title(main=input, cex.main=1)
 title(sub=header, cex.sub=0.5) 
 dev.off()
