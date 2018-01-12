@@ -36,7 +36,7 @@ diffs <- dba.analyze(dba.contrast(counted, categories=DBA_CONDITION, minMembers=
 
 
 
-pdf("constrast.pdf", paper="a4")
+pdf("contrast.pdf", paper="a4")
 plot(diffs, contrast=1)
 dev.off()
 
@@ -46,7 +46,7 @@ dev.off()
 
 peaks <- dba.report(diffs)
 peaks_df <- as(peaks,"data.frame")
-write.csv(peaks_df, file="constrast-loci.df.csv")
+write.csv(peaks_df, file="contrast-loci.df.csv")
 
 pdf("peaks-histogram.pdf", paper="a4")
 hist(peaks_df$Fold, breaks=100)
