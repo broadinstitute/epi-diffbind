@@ -27,14 +27,14 @@ dba.plotPCA(data, DBA_FACTOR, label=DBA_CONDITION)
 dev.off()
 
 
-if (is.na(as.integer(interval))) {
-	stop("Interval must be an integer")
-}
+# if (is.na(as.integer(interval))) {
+# 	stop("Interval must be an integer")
+# }
 
-if (as.integer(interval) == 0) {
+if (interval == 0) {
 	counted <- dba.count(data)
 } else {
-	counted <- dba.count(data, summits=as.integer(interval))
+	counted <- dba.count(data, summits=interval)
 }
 diffs <- dba.analyze(dba.contrast(counted, categories=DBA_CONDITION, minMembers=2))
 
