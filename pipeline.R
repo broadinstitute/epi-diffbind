@@ -27,10 +27,11 @@ dba.plotPCA(data, DBA_FACTOR, label=DBA_CONDITION)
 dev.off()
 
 
-# if (is.na(as.integer(interval))) {
-# 	stop("Interval must be an integer")
-# }
+if (is.na(as.integer(interval))) {
+	stop("Interval must be an integer")
+}
 
+interval <- as.integer(interval)
 if (interval == 0) {
 	counted <- dba.count(data)
 } else {
@@ -65,5 +66,5 @@ dba.plotVolcano(diffs)
 dev.off()
 
 pdf("Heatmap2.pdf", paper="a4")
-corvals <- dba.plotHeatmap(diffs, contrast=1, correlations=FALSE)
+dba.plotHeatmap(diffs, contrast=1, correlations=FALSE)
 dev.off()
