@@ -1,9 +1,7 @@
-FROM bioconductor/release_core2:R3.4.2_Bioc3.6
+ARG R_VERSION=4.0.0
 
-RUN R -e 'biocLite("DiffBind")'
+FROM r-base:${R_VERSION} AS r
 
-COPY pipeline.R /usr/local/bin/
+RUN ./install.R
 
-CMD ["pipeline.R"]
-
-WORKDIR /seq/epiprod/Data
+ENTRYPOINT []
