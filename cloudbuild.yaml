@@ -1,11 +1,12 @@
-timeout: 30m
+substitutions:
+  _GCR_REGISTRY: us.gcr.io
+  _IMAGE_NAME: epi-diffbind
+
 steps:
-- name: gcr.io/cloud-builders/docker
-  args: ['pull', 'us.gcr.io/${PROJECT_ID}/diffbind']
-- name: gcr.io/cloud-builders/docker
-  args: ['build', '--cache-from', 'us.gcr.io/${PROJECT_ID}/diffbind', '-t', 'us.gcr.io/${PROJECT_ID}/diffbind', '.']
-- name: gcr.io/cloud-builders/docker
-  args: ['tag', 'us.gcr.io/${PROJECT_ID}/diffbind', 'us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}']
-images:
-- us.gcr.io/${PROJECT_ID}/diffbind
-- us.gcr.io/${PROJECT_ID}/diffbind:${SHORT_SHA}
+# Use a fixed Kaniko build, until GoogleContainerTools/kaniko#1039 fix is in stable
+- name: gcr.io/kaniko-project/executor:a1af057f997316bfb1c4d2d82719d78481a02a79
+  args:
+  - --destination=${_GCR_REGISTRY}/${PROJECT_ID}/${_IMAGE_NAME}
+  - --cache=true
+
+timeout: 3600s
