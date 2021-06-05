@@ -6,7 +6,9 @@ RUN apt-get update -qq && \
     apt-get install -qq --no-install-recommends \
       libxml2-dev \
       libcurl4-openssl-dev \
-      librsvg2-dev
+      librsvg2-dev \
+      libv8-dev \
+      libssl-dev
 
 COPY scripts/install.R .
 
