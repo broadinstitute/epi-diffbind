@@ -11,6 +11,7 @@ RUN apt-get update -qq && \
       libssl-dev
 
 COPY scripts/install.R .
+COPY diffbind.r .
 
 RUN ./install.R
 
