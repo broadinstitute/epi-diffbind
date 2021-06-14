@@ -32,7 +32,7 @@ task diffBind {
   }
 
   command {
-    ./diffBind.r '${csv}' ${summits}
+    Rscript diffBind.r '${csv}' ${summits}
   }
 
   # runtime {
