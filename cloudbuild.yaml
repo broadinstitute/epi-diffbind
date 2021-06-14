@@ -9,4 +9,4 @@ steps:
   - --destination=${_GCR_REGISTRY}/${PROJECT_ID}/${_IMAGE_NAME}
   - --cache=true
 
-timeout: 3600s
+timeout: 5400s
