@@ -1,4 +1,4 @@
-ARG R_VERSION=4.0.3
+ARG R_VERSION=4.1.0
 
 FROM r-base:${R_VERSION} AS r
 
