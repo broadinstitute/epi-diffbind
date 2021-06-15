@@ -16,8 +16,6 @@ setup(install.packages, c(
   "BiocManager"
 ))
 
-BiocManager::install(version = '3.11', ask = F, force = T)
-
 setup(BiocManager::install, c(
   "DiffBind"
 ))
