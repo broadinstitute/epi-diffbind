@@ -10,10 +10,21 @@ interval <- as.integer(args[2])
 options(echo=TRUE, warn=1)
 library(DiffBind)
 
+# Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
+# Infer input directory from sample csv directory
+dir <- dirname(sample)
+if (dir != '.'){
+	sample <- read.table(sample, sep=',')
+	sample$bamReads <- file.path(dir, basename(sample$bamReads))
+	sample$bamControl <- file.path(dir, basename(sample$bamControl))
+	sample$Peaks <- file.path(dir, basename(sample$Peaks))
+}
+
+# Create diffbind object
 data <- dba(sampleSheet=sample)
 date <- format(Sys.Date(), format="%Y-%m-%d")
 
-
+# Plotting Commands
 pdf("output.pdf", paper="a4")
 
 plot(data, main="", sub = "")

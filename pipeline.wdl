@@ -4,6 +4,7 @@ workflow DiffBind {
   input {
     # Sample sheet as CSV
     File csv
+    Array[File] files
 
     # Width around summit (Default = 200 bp)
     Int summits = 200
@@ -14,6 +15,7 @@ workflow DiffBind {
   call diffBind {
     input:
       csv = csv,
+      files = files,
       summits = summits
       # dockerImage = dockerImage,
   }
@@ -27,20 +29,23 @@ workflow DiffBind {
 task diffBind {
   input {
     File csv
+    Array[File] files
     Int summits = 200
     # String dockerImage
   }
 
-  command {
-    Rscript diffBind.r '${csv}' ${summits}
-  }
+  command <<<
+    echo "Input csv location:" '~{csv}'
+    Rscript /diffBind.r '~{csv}' ~{summits}
+  >>>
 
-  # runtime {
+  runtime {
+    maxRetries: 0
   #   docker: dockerImage
   #   disks: 'local-disk 250G HDD'
   #   memory: '4G'
   #   cpu: 1
-  # }
+  }
 
   output {
     File outTSV = 'deseq_results.tsv'

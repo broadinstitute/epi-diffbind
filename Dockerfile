@@ -1,5 +1,7 @@
 ARG R_VERSION=4.1.0
 
+### R libraries
+
 FROM r-base:${R_VERSION} AS r
 
 RUN apt-get update -qq && \
@@ -11,8 +13,13 @@ RUN apt-get update -qq && \
       libssl-dev
 
 COPY scripts/install.R .
-COPY diffBind.r .
 
 RUN ./install.R
+
+### Final image
+
+FROM r
+
+COPY diffBind.r .
 
 ENTRYPOINT []
