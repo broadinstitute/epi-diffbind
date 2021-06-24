@@ -18,7 +18,7 @@ setup(install.packages, c(
 
 bioc_version <- "3.11"
 
-BiocManager::install(version = bioc_version)
+BiocManager::install(version = bioc_version, ask = FALSE)
 
 setup_bioc <- function(installer, packages) {
   for (pkg in packages) {
