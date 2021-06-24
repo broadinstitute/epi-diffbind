@@ -23,7 +23,7 @@ BiocManager::install(version = bioc_version, ask = FALSE)
 setup_bioc <- function(installer, packages) {
   for (pkg in packages) {
     if (!require(pkg, character.only = TRUE)) {
-      installer(pkg, version)
+      installer(pkg, version=bioc_version)
       library(pkg, character.only = TRUE)
     }
   }
