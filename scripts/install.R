@@ -16,6 +16,19 @@ setup(install.packages, c(
   "BiocManager"
 ))
 
-setup(BiocManager::install, c(
+bioc_version <- "3.11"
+
+BiocManager::install(version = bioc_version)
+
+setup_bioc <- function(installer, packages) {
+  for (pkg in packages) {
+    if (!require(pkg, character.only = TRUE)) {
+      installer(pkg, version)
+      library(pkg, character.only = TRUE)
+    }
+  }
+}
+
+setup_bioc(BiocManager::install, c(
   "DiffBind"
 ))

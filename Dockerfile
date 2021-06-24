@@ -1,4 +1,4 @@
-ARG R_VERSION=4.1.0
+ARG R_VERSION=4.0.0
 
 ### R libraries
 
