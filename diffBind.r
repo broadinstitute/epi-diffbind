@@ -31,7 +31,7 @@ dir <- dirname(sample)
 # Check if input files are in current directory
 if (dir != '.'){
 	# Check if inputs have been localized by looking for first file
-	sample <- read.csv(sample)
+	sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
 	# If input files exist in same folder as sample sheet, update all paths
 	if(file.exists(file.path(dir, basename(sample$bamReads[1])))){
 		sample$bamReads <- file.path(dir, basename(sample$bamReads))
