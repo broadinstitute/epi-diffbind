@@ -4,20 +4,24 @@ workflow DiffBind {
   input {
     # Sample sheet as CSV
     File csv
-    Array[File] files
+    Array[File]? files
+    String contrast
+    String? label = factor
 
     # Width around summit (Default = 200 bp)
-    Int summits = 200
+    Int? summits = 200
 
-    # String dockerImage
+    String? dockerImage = "quay.io/kdong2395/diffbind:dev"
   }
 
   call diffBind {
     input:
       csv = csv,
       files = files,
-      summits = summits
-      # dockerImage = dockerImage,
+      contrast = contrast,
+      label = label,
+      summits = summits,
+      dockerImage = dockerImage
   }
 
   output {
@@ -29,22 +33,24 @@ workflow DiffBind {
 task diffBind {
   input {
     File csv
-    Array[File] files
-    Int summits = 200
-    # String dockerImage
+    Array[File]? files
+    Int summits
+    String contrast
+    String label
+    String dockerImage
   }
 
   command <<<
     echo "Input csv location:" '~{csv}'
-    Rscript /diffBind.r '~{csv}' ~{summits}
+    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
   >>>
 
   runtime {
     maxRetries: 0
-  #   docker: dockerImage
-  #   disks: 'local-disk 250G HDD'
-  #   memory: '4G'
-  #   cpu: 1
+    docker: dockerImage
+    disks: 'local-disk 250G HDD'
+    memory: '4G'
+    cpu: 8
   }
 
   output {
