@@ -7,24 +7,6 @@ if (length(args) != 4) {
 sample <- args[1]
 interval <- as.integer(args[2])
 
-# Check contrast variable against list of acceptable inputs
-# Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
-contrast <- toupper(args[3])
-valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
-contrast_check <- grepl(contrast, valid_contrast)
-if (sum(contrast_check) != 1){
-	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-}
-contrast <- eval(parse(text=valid_contrast[contrast_check]))
-
-# Check label variable against list of acceptable inputs
-label <- toupper(args[4])
-label_check <- grepl(label, valid_contrast)
-if (sum(label_check) != 1){
-	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-}
-label <- eval(parse(text=valid_contrast[label_check]))
-
 # Infer input directory from sample csv directory
 dir <- dirname(sample)
 
@@ -55,6 +37,24 @@ library(DiffBind)
 message('Creating DBA object from sample sheet...')
 data <- dba(sampleSheet=sample)
 # date <- format(Sys.Date(), format="%Y-%m-%d")
+
+# Check contrast variable against list of acceptable inputs
+# Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
+contrast <- toupper(args[3])
+valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
+contrast_check <- grepl(contrast, valid_contrast)
+if (sum(contrast_check) != 1){
+	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+}
+contrast <- eval(parse(text=valid_contrast[contrast_check]))
+
+# Check label variable against list of acceptable inputs
+label <- toupper(args[4])
+label_check <- grepl(label, valid_contrast)
+if (sum(label_check) != 1){
+	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+}
+label <- eval(parse(text=valid_contrast[label_check]))
 
 # Plotting Commands
 message('Generating plots...')
