@@ -19,6 +19,6 @@
 ### Final image
 FROM quay.io/biocontainers/bioconductor-diffbind:3.0.15--r40h399db7b_0
 
-COPY diffBind.r .
+COPY scripts/ .
 
 ENTRYPOINT []
