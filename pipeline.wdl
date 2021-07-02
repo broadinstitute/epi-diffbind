@@ -4,17 +4,17 @@ workflow DiffBind {
   input {
     # Sample sheet as CSV
     File csv
-    Array[File]? files = None
+    Array[File]? files
     String contrast
     String? label = "factor"
 
     # Width around summit (Default = 200 bp)
     Int? summits = 200
 
-    String dockerImage = "quay.io/kdong2395/diffbind:dev"
+    String dockerImage = "quay.io/kdong2395/diffbind:master"
   }
 
-  if (files == None) {
+  if (!defined(files)) {
     call getFiles {
       input:
         csv = csv,
@@ -32,8 +32,8 @@ workflow DiffBind {
     }
   }
 
-  if (files != None) {
-    call diffBind {
+  if (defined(files)) {
+    call diffBindJSON {
       input:
         csv = csv,
         files = files,
@@ -45,8 +45,8 @@ workflow DiffBind {
   }
 
   output {
-    File outTSV = diffBind.outTSV
-    File outPDf = diffBind.outPDF
+    File outTSV = select_first([diffBind.outTSV, diffBindJSON.outTSV])
+    File outPDf = select_first([diffBind.outPDF, diffBindJSON.outPDF])
   }
 }
 
@@ -57,7 +57,7 @@ task getFiles {
   }
 
   command <<<
-    Rscript /scripts/getPaths.r '~{csv}'
+    Rscript /getPaths.r '~{csv}'
   >>>
 
   runtime {
@@ -69,7 +69,7 @@ task getFiles {
   }
 
   output {
-    Array[String] files = read_lines("file.txt")
+    Array[String] files = read_lines("files.txt")
   }
 }
 
@@ -85,7 +85,36 @@ task diffBind {
 
   command <<<
     echo "Input csv location:" '~{csv}'
-    Rscript /scripts/diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
+    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
+  >>>
+
+  runtime {
+    maxRetries: 0
+    docker: dockerImage
+    disks: 'local-disk 250 HDD'
+    memory: '4G'
+    cpu: 16
+  }
+
+  output {
+    File outTSV = 'deseq_results.tsv'
+    File outPDF = 'output.pdf'
+  }
+}
+
+task diffBindJSON {
+  input {
+    File csv
+    Array[File]? files
+    Int? summits
+    String contrast
+    String? label
+    String dockerImage
+  }
+
+  command <<<
+    echo "Input csv location:" '~{csv}'
+    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
   >>>
 
   runtime {
