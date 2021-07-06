@@ -17,7 +17,7 @@ sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
 updatePaths <- function(sample){
 	.getNewPaths <- function(files){
 		sapply(files, function(file){
-			newPath <- system(sprintf('find / -name %s', file), intern=T)
+			newPath <- system(sprintf('find . -name %s', basename(file)), intern=T)
 			if(length(newPath) == 0){
 				return(NA)
 			}
