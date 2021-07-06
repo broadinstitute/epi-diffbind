@@ -33,7 +33,7 @@ workflow DiffBind {
   }
 
   if (defined(files)) {
-    call diffBindJSON {
+    call diffBind as diffBindJSON {
       input:
         csv = csv,
         files = files,
@@ -74,35 +74,6 @@ task getFiles {
 }
 
 task diffBind {
-  input {
-    File csv
-    Array[File]? files
-    Int? summits
-    String contrast
-    String? label
-    String dockerImage
-  }
-
-  command <<<
-    echo "Input csv location:" '~{csv}'
-    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
-  >>>
-
-  runtime {
-    maxRetries: 0
-    docker: dockerImage
-    disks: 'local-disk 250 HDD'
-    memory: '4G'
-    cpu: 16
-  }
-
-  output {
-    File outTSV = 'deseq_results.tsv'
-    File outPDF = 'output.pdf'
-  }
-}
-
-task diffBindJSON {
   input {
     File csv
     Array[File]? files

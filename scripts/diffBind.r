@@ -10,24 +10,32 @@ interval <- as.integer(args[2])
 # Infer input directory from sample csv directory
 dir <- dirname(sample)
 
-# Check if input files are in current directory
-if (dir != '.'){
-	# Check if inputs have been localized by looking for first file
-	sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
-	# If input files exist in same folder as sample sheet, update all paths
-	if(file.exists(file.path(dir, basename(sample$bamReads[1])))){
-		sample$bamReads <- file.path(dir, basename(sample$bamReads))
-		sample$bamControl <- file.path(dir, basename(sample$bamControl))
-		sample$Peaks <- file.path(dir, basename(sample$Peaks))
-	} else {
-		# If files don't exist, assume we have gcp links and localize
-		files <- c(sample$bamReads, sample$bamControl, sample$Peaks)
-		write.table(unique(files), 'files.txt', row.names=F, col.names=F, quote=F)
-		system('cat files.txt | gsutil -m cp -n -I .')
-		sample$bamReads <- basename(sample$bamReads)
-		sample$bamControl <- basename(sample$bamControl)
-		sample$Peaks <- basename(sample$Peaks)
+# Check if inputs have been localized by looking for each file
+sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
+
+updatePaths <- function(sample){
+	.getNewPaths <- function(files){
+		sapply(files, function(file){
+			newPath <- system(sprintf('find . -name %s', file), intern=T)
+			if(length(newPath) == 0){
+				return(NA)
+			}
+			return(newPath)
+		})
 	}
+
+	sample$bamReads <- .getNewPaths(sample$bamReads)
+	sample$bamControl <- .getNewPaths(sample$bamControl)
+	sample$Peaks <- .getNewPaths(sample$Peaks)
+
+	return(sample)
+}
+
+sample <- updatePaths(sample)
+
+# If any input file is missing, throw error
+if(sum(is.na(c(sample$bamReads, sample$bamControl, sample$Peaks))) > 0){
+	stop("ERROR: Not all input files found")
 }
 
 options(echo=TRUE, warn=1)
