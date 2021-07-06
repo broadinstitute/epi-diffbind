@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+message(sprintf('Current working directory: %s', getwd()))
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 4) {
@@ -16,7 +17,7 @@ sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
 updatePaths <- function(sample){
 	.getNewPaths <- function(files){
 		sapply(files, function(file){
-			newPath <- system(sprintf('find . -name %s', file), intern=T)
+			newPath <- system(sprintf('find / -name %s', file), intern=T)
 			if(length(newPath) == 0){
 				return(NA)
 			}
