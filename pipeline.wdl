@@ -93,7 +93,7 @@ task diffBind {
     docker: dockerImage
     disks: 'local-disk 250 HDD'
     memory: '4G'
-    cpu: 16
+    cpu: 8
   }
 
   output {

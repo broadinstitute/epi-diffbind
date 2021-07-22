@@ -76,9 +76,9 @@ dev.off()
 
 message('Counting reads...')
 if (interval == 0) {
-	counted <- dba.count(data)
+	counted <- dba.count(data, bUseSummarizeOverlaps=F)
 } else {
-	counted <- dba.count(data, summits=interval)
+	counted <- dba.count(data, summits=interval, bUseSummarizeOverlaps=F)
 }
 message('Setting up contrasts...')
 cont <- dba.contrast(counted, categories=contrast, minMembers=2)
