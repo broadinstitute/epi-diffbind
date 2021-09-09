@@ -12,6 +12,7 @@ workflow DiffBind {
     Int? summits = 200
 
     String dockerImage = "quay.io/kdong2395/diffbind:master"
+    Int? memory = 32
   }
 
   if (!defined(files)) {
@@ -29,6 +30,7 @@ workflow DiffBind {
         label = label,
         summits = summits,
         dockerImage = dockerImage
+        memory = getFiles.memory
     }
   }
 
@@ -41,6 +43,7 @@ workflow DiffBind {
         label = label,
         summits = summits,
         dockerImage = dockerImage
+        memory = memory
     }
   }
 
@@ -70,6 +73,7 @@ task getFiles {
 
   output {
     Array[String] files = read_lines("files.txt")
+    Int memory = read_int('mem.txt')
   }
 }
 
@@ -81,6 +85,7 @@ task diffBind {
     String contrast
     String? label
     String dockerImage
+    Int? memory 
   }
 
   command <<<
@@ -92,7 +97,7 @@ task diffBind {
     maxRetries: 0
     docker: dockerImage
     disks: 'local-disk 250 HDD'
-    memory: '4G'
+    memory: memory + 'G'
     cpu: 8
   }
 
