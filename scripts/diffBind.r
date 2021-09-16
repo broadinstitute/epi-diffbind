@@ -74,14 +74,22 @@ dba.plotPCA(data, attributes=contrast, label=label)
 
 dev.off()
 
+message('Generating greylist...')
+greyed <- dba.blacklist(data)
+
 message('Counting reads...')
 if (interval == 0) {
-	counted <- dba.count(data, bUseSummarizeOverlaps=F)
+	counted <- dba.count(greyed, bUseSummarizeOverlaps=F)
 } else {
-	counted <- dba.count(data, summits=interval, bUseSummarizeOverlaps=F)
+	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F)
 }
+
+message('Normalizing')
+normalized <- dba.normalize(counted)
+
 message('Setting up contrasts...')
-cont <- dba.contrast(counted, categories=contrast, minMembers=2)
+cont <- dba.contrast(normalized, categories=contrast, minMembers=2)
+
 message('Performing differential binding analysis...')
 diffs <- dba.analyze(cont)
 

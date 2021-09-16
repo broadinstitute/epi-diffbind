@@ -29,7 +29,7 @@ workflow DiffBind {
         contrast = contrast,
         label = label,
         summits = summits,
-        dockerImage = dockerImage
+        dockerImage = dockerImage,
         memory = getFiles.memory
     }
   }
@@ -42,7 +42,7 @@ workflow DiffBind {
         contrast = contrast,
         label = label,
         summits = summits,
-        dockerImage = dockerImage
+        dockerImage = dockerImage,
         memory = memory
     }
   }
