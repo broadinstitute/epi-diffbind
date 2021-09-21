@@ -1,12 +1,19 @@
 #!/usr/bin/env Rscript
 message(sprintf('Current working directory: %s', getwd()))
 
+# Expected arguments:
+# 1) Sample sheet path
+# 2) Interval width
+# 3) Contrast variable
+# 4) Label variable
+# 5) Mode [pcaOnly]
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) != 4) {
+if (length(args) < 5) {
   stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables")
 }
 sample <- args[1]
 interval <- as.integer(args[2])
+modeFlag <- args[5]
 
 # Infer input directory from sample csv directory
 dir <- dirname(sample)
@@ -26,7 +33,10 @@ updatePaths <- function(sample){
 	}
 
 	sample$bamReads <- .getNewPaths(sample$bamReads)
-	sample$bamControl <- .getNewPaths(sample$bamControl)
+	# Optional
+	if(!is.null(sample$bamControl)){
+		sample$bamControl <- .getNewPaths(sample$bamControl)
+	}
 	sample$Peaks <- .getNewPaths(sample$Peaks)
 
 	return(sample)
@@ -74,8 +84,15 @@ dba.plotPCA(data, attributes=contrast, label=label)
 
 dev.off()
 
+if(modeFlag == 'pcaOnly'){
+	file.create('deseq_results.tsv')
+	quit(save='no')
+}
+
 message('Generating greylist...')
 greyed <- dba.blacklist(data)
+
+saveRDS(greyed, 'tmp1_blacklisted.rds')
 
 message('Counting reads...')
 if (interval == 0) {
@@ -84,11 +101,18 @@ if (interval == 0) {
 	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F)
 }
 
+saveRDS(counted, 'tmp2_counted.rds')
+
 message('Normalizing')
 normalized <- dba.normalize(counted)
 
+saveRDS(normalized, 'tmp3_normalized.rds')
+
 message('Setting up contrasts...')
 cont <- dba.contrast(normalized, categories=contrast, minMembers=2)
+
+saveRDS(cont, 'tmp4_contrasted.rds')
+
 
 message('Performing differential binding analysis...')
 diffs <- dba.analyze(cont)

@@ -7,12 +7,13 @@ workflow DiffBind {
     Array[File]? files
     String contrast
     String? label = "factor"
+    String? flag
 
     # Width around summit (Default = 200 bp)
     Int? summits = 200
 
     String dockerImage = "quay.io/kdong2395/diffbind:master"
-    Int? memory = 32
+    Int? cpus = 8
   }
 
   if (!defined(files)) {
@@ -29,8 +30,9 @@ workflow DiffBind {
         contrast = contrast,
         label = label,
         summits = summits,
+        flag = flag,
         dockerImage = dockerImage,
-        memory = getFiles.memory
+        cpus = getFiles.cpus
     }
   }
 
@@ -42,8 +44,9 @@ workflow DiffBind {
         contrast = contrast,
         label = label,
         summits = summits,
+        flag = flag,
         dockerImage = dockerImage,
-        memory = memory
+        cpus = cpus
     }
   }
 
@@ -73,7 +76,7 @@ task getFiles {
 
   output {
     Array[String] files = read_lines("files.txt")
-    Int memory = read_int('mem.txt')
+    Int cpus = read_int('core.txt')
   }
 }
 
@@ -84,21 +87,22 @@ task diffBind {
     Int? summits
     String contrast
     String? label
+    String? flag
     String dockerImage
-    Int? memory 
+    Int? cpus 
   }
 
   command <<<
     echo "Input csv location:" '~{csv}'
-    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
+    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label} ~{flag}
   >>>
 
   runtime {
     maxRetries: 0
     docker: dockerImage
     disks: 'local-disk 250 HDD'
-    memory: memory + 'G'
-    cpu: 8
+    memory: '4G'
+    cpu: cpus
   }
 
   output {
