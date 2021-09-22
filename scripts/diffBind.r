@@ -59,6 +59,7 @@ data <- dba(sampleSheet=sample)
 
 # Reduce yieldSize
 data$config$yieldSize <- 2500000
+message(sprintf('Cores detected: %s', data$config$cores))
 
 # Check contrast variable against list of acceptable inputs
 # Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER

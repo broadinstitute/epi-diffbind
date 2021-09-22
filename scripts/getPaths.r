@@ -15,4 +15,4 @@ write.table(files, file='files.txt', col.names=F, row.names=F, quote=F)
 # Uses 8 cores, failure at 18 rows with 4G memory per core
 cores <- ceiling(nrow(sample) * 8/16 / 2) * 2 # multiples of 2
 write(cores, file='core.txt')
-write(cores*4, file='mem.txt')
+write(cores*4*2, file='mem.txt')
