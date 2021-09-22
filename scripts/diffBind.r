@@ -8,8 +8,8 @@ message(sprintf('Current working directory: %s', getwd()))
 # 4) Label variable
 # 5) Mode [pcaOnly]
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) < 5) {
-  stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables")
+if (length(args) < 4 | length(args) > 5) {
+  stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables, and (optional) mode")
 }
 sample <- args[1]
 interval <- as.integer(args[2])
