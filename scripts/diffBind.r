@@ -84,9 +84,11 @@ dba.plotPCA(data, attributes=contrast, label=label)
 
 dev.off()
 
-if(modeFlag == 'pcaOnly'){
-	file.create('deseq_results.tsv')
-	quit(save='no')
+if(exists(modeFlag)){
+	if(modeFlag == 'pcaOnly'){
+		file.create('deseq_results.tsv')
+		quit(save='no')
+	}
 }
 
 message('Generating greylist...')
