@@ -57,6 +57,9 @@ message('Creating DBA object from sample sheet...')
 data <- dba(sampleSheet=sample)
 # date <- format(Sys.Date(), format="%Y-%m-%d")
 
+# Reduce yieldSize
+data$config$yieldSize <- 2500000
+
 # Check contrast variable against list of acceptable inputs
 # Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
 contrast <- toupper(args[3])
