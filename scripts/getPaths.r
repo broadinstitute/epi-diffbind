@@ -13,6 +13,6 @@ files <- unique(c(sample$bamReads, sample$bamControl, sample$Peaks))
 write.table(files, file='files.txt', col.names=F, row.names=F, quote=F)
 
 # Uses 8 cores, failure at 18 rows with 4G memory per core
-cores <- min(ceiling(nrow(sample) * 8/16 / 2) * 2, 8) # multiples of 2
+cores <- max(ceiling(nrow(sample) * 8/16 / 2) * 2, 8) # multiples of 2
 write(cores, file='core.txt')
 write(cores*4, file='mem.txt')
