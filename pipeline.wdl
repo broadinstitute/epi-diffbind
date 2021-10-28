@@ -56,6 +56,7 @@ workflow DiffBind {
   output {
     File outTSV = select_first([diffBind.outTSV, diffBindJSON.outTSV])
     File outPDf = select_first([diffBind.outPDF, diffBindJSON.outPDF])
+    File outRDS = select_first([diffBind.outRDS, diffBindJSON.outRDS])
   }
 }
 
@@ -99,6 +100,8 @@ task diffBind {
 
   command <<<
     echo "Input csv location:" '~{csv}'
+    ls -lh /cromwell_root/broad-epi-aggregated-alns
+    ls -lh /cromwell_root/broad-epi-segmentations
     Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label} ~{flag}
   >>>
 
@@ -113,5 +116,6 @@ task diffBind {
   output {
     File outTSV = 'deseq_results.tsv'
     File outPDF = 'output.pdf'
+    File outRDS = 'tmp2_counted.rds'
   }
 }

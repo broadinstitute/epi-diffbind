@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 message(sprintf('Current working directory: %s', getwd()))
 
+# First check that inputs are valid
 # Expected arguments:
 # 1) Sample sheet path
 # 2) Interval width
@@ -20,8 +21,9 @@ dir <- dirname(sample)
 
 # Check if inputs have been localized by looking for each file
 sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
+controlPresent <- !is.null(sample$bamControl)
 
-updatePaths <- function(sample){
+updatePaths <- function(sample, controlPresent){
 	.getNewPaths <- function(files){
 		sapply(files, function(file){
 			newPath <- system(sprintf('find . -name %s', basename(file)), intern=T)
@@ -34,7 +36,7 @@ updatePaths <- function(sample){
 
 	sample$bamReads <- .getNewPaths(sample$bamReads)
 	# Optional
-	if(!is.null(sample$bamControl)){
+	if(controlPresent){
 		sample$bamControl <- .getNewPaths(sample$bamControl)
 	}
 	sample$Peaks <- .getNewPaths(sample$Peaks)
@@ -42,7 +44,7 @@ updatePaths <- function(sample){
 	return(sample)
 }
 
-sample <- updatePaths(sample)
+sample <- updatePaths(sample, controlPresent)
 
 # If any input file is missing, throw error
 if(sum(is.na(c(sample$bamReads, sample$bamControl, sample$Peaks))) > 0){
@@ -51,6 +53,7 @@ if(sum(is.na(c(sample$bamReads, sample$bamControl, sample$Peaks))) > 0){
 
 options(echo=TRUE, warn=1)
 library(DiffBind)
+library(GreyListChIP)
 
 # Create diffbind object
 message('Creating DBA object from sample sheet...')
@@ -58,7 +61,7 @@ data <- dba(sampleSheet=sample)
 # date <- format(Sys.Date(), format="%Y-%m-%d")
 
 # Reduce yieldSize
-data$config$yieldSize <- 2500000
+# data$config$yieldSize <- 2500000
 message(sprintf('Cores detected: %s', data$config$cores))
 
 # Check contrast variable against list of acceptable inputs
@@ -79,24 +82,102 @@ if (sum(label_check) != 1){
 }
 label <- eval(parse(text=valid_contrast[label_check]))
 
-# Plotting Commands
-message('Generating plots...')
-pdf("output.pdf", paper="a4")
+# if(exists(modeFlag)){
+# 	if(modeFlag == 'pcaOnly'){
+# 		file.create('deseq_results.tsv')
+# 		quit(save='no')
+# 	}
+# }
 
-plot(data, main="", sub = "")
-dba.plotPCA(data, attributes=contrast, label=label)
-
-dev.off()
-
-if(exists(modeFlag)){
-	if(modeFlag == 'pcaOnly'){
-		file.create('deseq_results.tsv')
-		quit(save='no')
-	}
-}
-
+# TODO: soft-code genome selection
 message('Generating greylist...')
-greyed <- dba.blacklist(data)
+load(system.file("extra/ktypes.rda", package="DiffBind"), envir = environment())
+
+
+# makeGreyList <- function(data, karyotype){
+# 	noControls_ <- function(controls) {
+# 		if(sum(is.na(controls))==length(controls)) {
+# 			return(TRUE)
+# 		} else {
+# 			if(length(unique(controls))==1 && controls[1]=="") {
+# 			return(TRUE)        
+# 			}
+# 		}
+# 		return(FALSE)
+# 	}
+
+# 	controls <- data$class['bamControl',]
+
+# 	if(noControls_(controls)){
+# 		return(FALSE)
+# 	}
+
+# 	whichcontrols <- !duplicated(controls)
+# 	whichcontrols <- whichcontrols & !is.na(controls)
+# 	whichcontrols <- whichcontrols & controls != ""
+# 	controls      <- controls[whichcontrols]
+# 	controlnames  <- data$class['Control', whichcontrols]
+# 	gl_template <- new("GreyList",karyotype=karyotype)
+
+# 	getGreylist_ <- function(gl, bamfile, pval, usecores){
+# 		gl <- GreyListChIP::countReads(gl, bamfile)
+# 		gl <- GreyListChIP::calcThreshold(gl,p=pval,cores=usecores)
+# 		gl <- GreyListChIP::makeGreyList(gl)
+# 		return(gl@regions)
+# 	}
+
+# 	usecores <- 4#data$config$cores
+# 	pval=.999
+
+# 	controllist <- vector(mode='list', length(controls))
+# 	for (i in seq_along(controls)){
+# 		controllist[[i]] <- getGreylist_(gl_template, controls[i], pval, usecores)
+# 	}
+# 	names(controllist) <- controlnames
+
+# 	controllist <- GRangesList(controllist)
+# 	greylist <- list(master=Reduce(union, controllist),controls=controllist)
+
+# 	return(greylist)
+# }
+
+# greylist <- makeGreyList(data, dba.ktypes$BSgenome.Hsapiens.1000genomes.hs37d5)
+
+# Make greylist if controls exist
+if(controlPresent){
+	controls <- data$class['bamControl',]
+
+	# Find unique, non-NA, non-empty controls
+	whichcontrols <- !duplicated(controls)
+	whichcontrols <- whichcontrols & !is.na(controls)
+	whichcontrols <- whichcontrols & controls != ""
+	controls      <- controls[whichcontrols]
+	controlnames  <- data$class['Control', whichcontrols]
+	gl_template <- new("GreyList",karyotype=dba.ktypes$BSgenome.Hsapiens.1000genomes.hs37d5)
+
+	getGreylist <- function(gl, bamfile, pval, usecores){
+		gl <- GreyListChIP::countReads(gl, bamfile)
+		gl <- GreyListChIP::calcThreshold(gl,p=pval,cores=usecores)
+		gl <- GreyListChIP::makeGreyList(gl)
+		return(gl@regions)
+	}
+
+	usecores <- 4#data$config$cores
+	pval=.999
+
+	controllist <- vector(mode='list', length(controls))
+	for (i in seq_along(controls)){
+		controllist[[i]] <- getGreylist(gl_template, controls[i], pval, usecores)
+	}
+	names(controllist) <- controlnames
+
+	controllist <- GRangesList(controllist)
+	greylist <- list(master=Reduce(union, controllist),controls=controllist)
+
+	greyed <- dba.blacklist(data, blacklist=DBA_BLACKLIST_GRCH37, greylist=greylist)
+} else {
+	greyed <- dba.blacklist(data, blacklist=DBA_BLACKLIST_GRCH37, greylist=F)
+}
 
 saveRDS(greyed, 'tmp1_blacklisted.rds')
 
@@ -134,3 +215,12 @@ message('Results successfully saved!')
 # edger_results <- dba.report(diffs, method = DBA_EDGER, contrast = 1, th = 1)
 # edger_df <- as.data.frame(edger_results)
 # write.table(file = 'edger_results.tsv', x = edger_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
+
+# Plotting Commands
+message('Generating plots...')
+pdf("output.pdf", paper="a4")
+
+plot(data, main="", sub = "")
+dba.plotPCA(data, attributes=contrast, label=label)
+
+dev.off()
