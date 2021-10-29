@@ -183,9 +183,9 @@ saveRDS(greyed, 'tmp1_blacklisted.rds')
 
 message('Counting reads...')
 if (interval == 0) {
-	counted <- dba.count(greyed, bUseSummarizeOverlaps=F)
+	counted <- dba.count(greyed, bUseSummarizeOverlaps=F, bParallel=F)
 } else {
-	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F)
+	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F, bParallel=F)
 }
 
 saveRDS(counted, 'tmp2_counted.rds')
