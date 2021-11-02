@@ -5,9 +5,9 @@ workflow DiffBind {
     # Sample sheet as CSV
     File csv
     Array[File]? files
-    String contrast
-    String? label = "factor"
-    String? flag
+    # String contrast
+    # String? label = "factor"
+    # String? flag
 
     # Width around summit (Default = 200 bp)
     Int? summits = 200
@@ -28,10 +28,10 @@ workflow DiffBind {
       input:
         csv = csv,
         files = getFiles.files,
-        contrast = contrast,
-        label = label,
         summits = summits,
-        flag = flag,
+        # contrast = contrast,
+        # label = label,
+        # flag = flag,
         dockerImage = dockerImage,
         cpus = getFiles.cpus,
         memory = getFiles.memory
@@ -43,10 +43,10 @@ workflow DiffBind {
       input:
         csv = csv,
         files = files,
-        contrast = contrast,
-        label = label,
         summits = summits,
-        flag = flag,
+        # contrast = contrast,
+        # label = label,
+        # flag = flag,
         dockerImage = dockerImage,
         cpus = cpus,
         memory = memory
@@ -54,8 +54,8 @@ workflow DiffBind {
   }
 
   output {
-    File outTSV = select_first([diffBind.outTSV, diffBindJSON.outTSV])
-    File outPDf = select_first([diffBind.outPDF, diffBindJSON.outPDF])
+    # File outTSV = select_first([diffBind.outTSV, diffBindJSON.outTSV])
+    # File outPDf = select_first([diffBind.outPDF, diffBindJSON.outPDF])
     File outRDS = select_first([diffBind.outRDS, diffBindJSON.outRDS])
   }
 }
@@ -90,9 +90,9 @@ task diffBind {
     File csv
     Array[File]? files
     Int? summits
-    String contrast
-    String? label
-    String? flag
+    # String contrast
+    # String? label
+    # String? flag
     String dockerImage
     Int? cpus
     Int? memory
@@ -102,7 +102,7 @@ task diffBind {
     echo "Input csv location:" '~{csv}'
     ls -lh /cromwell_root/broad-epi-aggregated-alns
     ls -lh /cromwell_root/broad-epi-segmentations
-    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label} ~{flag}
+    Rscript /diffBind.r '~{csv}' ~{summits} # ~{contrast} ~{label} ~{flag}
   >>>
 
   runtime {
@@ -114,8 +114,8 @@ task diffBind {
   }
 
   output {
-    File outTSV = 'deseq_results.tsv'
-    File outPDF = 'output.pdf'
-    File outRDS = 'tmp2_counted.rds'
+    # File outTSV = 'deseq_results.tsv'
+    # File outPDF = 'output.pdf'
+    File outRDS = 'counted.rds'
   }
 }

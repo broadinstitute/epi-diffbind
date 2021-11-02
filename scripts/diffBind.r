@@ -5,16 +5,19 @@ message(sprintf('Current working directory: %s', getwd()))
 # Expected arguments:
 # 1) Sample sheet path
 # 2) Interval width
-# 3) Contrast variable
-# 4) Label variable
-# 5) Mode [pcaOnly]
+# # 3) Contrast variable
+# # 4) Label variable
+# # 5) Mode [pcaOnly]
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) < 4 | length(args) > 5) {
-  stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables, and (optional) mode")
+# if (length(args) < 4 | length(args) > 5) {
+#   stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables, and (optional) mode")
+# }
+if (length(args) != 2 ){
+  stop("ERROR: User must supply sample sheet and summit parameter")
 }
 sample <- args[1]
 interval <- as.integer(args[2])
-modeFlag <- args[5]
+# modeFlag <- args[5]
 
 # Infer input directory from sample csv directory
 dir <- dirname(sample)
@@ -64,23 +67,23 @@ data <- dba(sampleSheet=sample)
 # data$config$yieldSize <- 2500000
 message(sprintf('Cores detected: %s', data$config$cores))
 
-# Check contrast variable against list of acceptable inputs
-# Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
-contrast <- toupper(args[3])
-valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
-contrast_check <- grepl(contrast, valid_contrast)
-if (sum(contrast_check) != 1){
-	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-}
-contrast <- eval(parse(text=valid_contrast[contrast_check]))
+# # Check contrast variable against list of acceptable inputs
+# # Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
+# contrast <- toupper(args[3])
+# valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
+# contrast_check <- grepl(contrast, valid_contrast)
+# if (sum(contrast_check) != 1){
+# 	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+# }
+# contrast <- eval(parse(text=valid_contrast[contrast_check]))
 
-# Check label variable against list of acceptable inputs
-label <- toupper(args[4])
-label_check <- grepl(label, valid_contrast)
-if (sum(label_check) != 1){
-	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-}
-label <- eval(parse(text=valid_contrast[label_check]))
+# # Check label variable against list of acceptable inputs
+# label <- toupper(args[4])
+# label_check <- grepl(label, valid_contrast)
+# if (sum(label_check) != 1){
+# 	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+# }
+# label <- eval(parse(text=valid_contrast[label_check]))
 
 # if(exists(modeFlag)){
 # 	if(modeFlag == 'pcaOnly'){
@@ -89,10 +92,9 @@ label <- eval(parse(text=valid_contrast[label_check]))
 # 	}
 # }
 
-# TODO: soft-code genome selection
+# TODO: soft-code genome selection and parameterize pval
 message('Generating greylist...')
 load(system.file("extra/ktypes.rda", package="DiffBind"), envir = environment())
-
 
 # makeGreyList <- function(data, karyotype){
 # 	noControls_ <- function(controls) {
@@ -162,7 +164,7 @@ if(controlPresent){
 		return(gl@regions)
 	}
 
-	usecores <- 4#data$config$cores
+	usecores <- data$config$cores
 	pval=.999
 
 	controllist <- vector(mode='list', length(controls))
@@ -179,7 +181,7 @@ if(controlPresent){
 	greyed <- dba.blacklist(data, blacklist=DBA_BLACKLIST_GRCH37, greylist=F)
 }
 
-saveRDS(greyed, 'tmp1_blacklisted.rds')
+# saveRDS(greyed, 'tmp1_blacklisted.rds')
 
 message('Counting reads...')
 if (interval == 0) {
@@ -188,39 +190,39 @@ if (interval == 0) {
 	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F, bParallel=F)
 }
 
-saveRDS(counted, 'tmp2_counted.rds')
+saveRDS(counted, 'counted.rds')
 
-message('Normalizing')
-normalized <- dba.normalize(counted)
+# message('Normalizing')
+# normalized <- dba.normalize(counted)
 
-saveRDS(normalized, 'tmp3_normalized.rds')
+# saveRDS(normalized, 'tmp3_normalized.rds')
 
-message('Setting up contrasts...')
-cont <- dba.contrast(normalized, categories=contrast, minMembers=2)
+# message('Setting up contrasts...')
+# cont <- dba.contrast(normalized, categories=contrast, minMembers=2)
 
-saveRDS(cont, 'tmp4_contrasted.rds')
+# saveRDS(cont, 'tmp4_contrasted.rds')
 
 
-message('Performing differential binding analysis...')
-diffs <- dba.analyze(cont)
+# message('Performing differential binding analysis...')
+# diffs <- dba.analyze(cont)
 
-# save deseq results
-message('Saving results...')
-deseq_results <- dba.report(diffs, method=DBA_DESEQ2, contrast = 1, th=1)
-deseq_df <- as.data.frame(deseq_results)
-write.table(file = 'deseq_results.tsv', x = deseq_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
-message('Results successfully saved!')
+# # save deseq results
+# message('Saving results...')
+# deseq_results <- dba.report(diffs, method=DBA_DESEQ2, contrast = 1, th=1)
+# deseq_df <- as.data.frame(deseq_results)
+# write.table(file = 'deseq_results.tsv', x = deseq_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
+# message('Results successfully saved!')
 
-# # save edge_r results
-# edger_results <- dba.report(diffs, method = DBA_EDGER, contrast = 1, th = 1)
-# edger_df <- as.data.frame(edger_results)
-# write.table(file = 'edger_results.tsv', x = edger_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
+# # # save edge_r results
+# # edger_results <- dba.report(diffs, method = DBA_EDGER, contrast = 1, th = 1)
+# # edger_df <- as.data.frame(edger_results)
+# # write.table(file = 'edger_results.tsv', x = edger_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
 
-# Plotting Commands
-message('Generating plots...')
-pdf("output.pdf", paper="a4")
+# # Plotting Commands
+# message('Generating plots...')
+# pdf("output.pdf", paper="a4")
 
-plot(data, main="", sub = "")
-dba.plotPCA(data, attributes=contrast, label=label)
+# plot(data, main="", sub = "")
+# dba.plotPCA(data, attributes=contrast, label=label)
 
-dev.off()
+# dev.off()
