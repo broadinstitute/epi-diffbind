@@ -102,7 +102,7 @@ task diffBind {
     echo "Input csv location:" '~{csv}'
     ls -lh /cromwell_root/broad-epi-aggregated-alns
     ls -lh /cromwell_root/broad-epi-segmentations
-    Rscript /diffBind.r '~{csv}' ~{summits} # ~{contrast} ~{label} ~{flag}
+    Rscript /diffBind.r '~{csv}' ~{summits}
   >>>
 
   runtime {
