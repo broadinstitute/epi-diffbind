@@ -14,7 +14,7 @@ if (length(args) < 4 | length(args) > 5) {
 }
 sample <- args[1]
 interval <- as.integer(args[2])
-# modeFlag <- args[5]
+modeFlag <- args[5]
 
 # Infer input directory from sample csv directory
 dir <- dirname(sample)
@@ -93,7 +93,7 @@ dev.off()
 
 if(exists(modeFlag)){
 	if(modeFlag == 'pcaOnly'){
-		file.create('deseq_results.tsv')
+		file.create('counted.rds')
 		quit(save='no')
 	}
 }
