@@ -9,11 +9,8 @@ message(sprintf('Current working directory: %s', getwd()))
 # # 4) Label variable
 # # 5) Mode [pcaOnly]
 args = commandArgs(trailingOnly=TRUE)
-# if (length(args) < 4 | length(args) > 5) {
-#   stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables, and (optional) mode")
-# }
-if (length(args) != 2 ){
-  stop("ERROR: User must supply sample sheet and summit parameter")
+if (length(args) < 4 | length(args) > 5) {
+  stop("ERROR: User must supply sample sheet, summit parameter, along with contrast and label variables, and (optional) mode")
 }
 sample <- args[1]
 interval <- as.integer(args[2])
@@ -67,30 +64,39 @@ data <- dba(sampleSheet=sample)
 # data$config$yieldSize <- 2500000
 message(sprintf('Cores detected: %s', data$config$cores))
 
-# # Check contrast variable against list of acceptable inputs
-# # Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
-# contrast <- toupper(args[3])
-# valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
-# contrast_check <- grepl(contrast, valid_contrast)
-# if (sum(contrast_check) != 1){
-# 	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-# }
-# contrast <- eval(parse(text=valid_contrast[contrast_check]))
+# Check contrast variable against list of acceptable inputs
+# Valid contrast attributes : DBA_ID, DBA_TISSUE, DBA_FACTOR, DBA_CONDITION, DBA_TREATMENT, DBA_REPLICATE, DBA_CALLER
+contrast <- toupper(args[3])
+valid_contrast <- c('DBA_ID', 'DBA_TISSUE', 'DBA_FACTOR', 'DBA_CONDITION', 'DBA_TREATMENT', 'DBA_REPLICATE', 'DBA_CALLER')
+contrast_check <- grepl(contrast, valid_contrast)
+if (sum(contrast_check) != 1){
+	stop(sprintf("ERROR: Please supply valid contrast variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+}
+contrast <- eval(parse(text=valid_contrast[contrast_check]))
 
-# # Check label variable against list of acceptable inputs
-# label <- toupper(args[4])
-# label_check <- grepl(label, valid_contrast)
-# if (sum(label_check) != 1){
-# 	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
-# }
-# label <- eval(parse(text=valid_contrast[label_check]))
+# Check label variable against list of acceptable inputs
+label <- toupper(args[4])
+label_check <- grepl(label, valid_contrast)
+if (sum(label_check) != 1){
+	stop(sprintf("ERROR: Please supply valid label variable.\nMust be one of: {%s}", paste0(valid_contrast, collapse=', ')))
+}
+label <- eval(parse(text=valid_contrast[label_check]))
 
-# if(exists(modeFlag)){
-# 	if(modeFlag == 'pcaOnly'){
-# 		file.create('deseq_results.tsv')
-# 		quit(save='no')
-# 	}
-# }
+# Plotting Commands
+message('Generating plots...')
+pdf("output.pdf", paper="a4")
+
+plot(data, main="", sub = "")
+dba.plotPCA(data, attributes=contrast, label=label)
+
+dev.off()
+
+if(exists(modeFlag)){
+	if(modeFlag == 'pcaOnly'){
+		file.create('deseq_results.tsv')
+		quit(save='no')
+	}
+}
 
 # TODO: soft-code genome selection and parameterize pval
 message('Generating greylist...')
@@ -217,12 +223,3 @@ saveRDS(counted, 'counted.rds')
 # # edger_results <- dba.report(diffs, method = DBA_EDGER, contrast = 1, th = 1)
 # # edger_df <- as.data.frame(edger_results)
 # # write.table(file = 'edger_results.tsv', x = edger_df, col.names = TRUE, row.names = FALSE, sep = '\t', quote=F)
-
-# # Plotting Commands
-# message('Generating plots...')
-# pdf("output.pdf", paper="a4")
-
-# plot(data, main="", sub = "")
-# dba.plotPCA(data, attributes=contrast, label=label)
-
-# dev.off()
