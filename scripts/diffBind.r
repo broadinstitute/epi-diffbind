@@ -91,8 +91,8 @@ dba.plotPCA(data, attributes=contrast, label=label)
 
 dev.off()
 
-if(exists(modeFlag)){
-	if(modeFlag == 'pcaOnly'){
+if(!is.na(modeFlag)){
+	if(tolower(modeFlag) == 'pcaonly'){
 		file.create('counted.rds')
 		quit(save='no')
 	}
