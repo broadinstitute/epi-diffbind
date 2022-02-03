@@ -5,7 +5,7 @@ if (length(args) != 2) {
   stop("ERROR: User must supply sample sheet and disk factor")
 }
 sample <- args[1]
-diskFactor <- args[2]
+diskFactor <- as.integer(args[2])
 
 sample <- read.csv(sample, sep=ifelse(grepl('.tsv', sample), '\t', ','))
 
