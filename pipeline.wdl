@@ -6,22 +6,25 @@ workflow DiffBind {
     File csv
     Array[File]? files
     String contrast
-    String? label = "factor"
+    String label = "factor"
     String? flag
 
     # Width around summit (Default = 200 bp)
-    Int? summits = 200
+    Int summits = 200
 
     String dockerImage = "quay.io/kdong2395/diffbind:master"
-    Int? cpus = 8
-    Int? memory = 32
+    Int cpus = 8
+    Int memory = 32
+    Int diskSize = 375
+    Int diskFactor = 5
   }
 
   if (!defined(files)) {
     call getFiles {
       input:
         csv = csv,
-        dockerImage = dockerImage
+        dockerImage = dockerImage,
+        diskFactor = diskFactor
     }
     
     call diffBind {
@@ -34,7 +37,8 @@ workflow DiffBind {
         flag = flag,
         dockerImage = dockerImage,
         cpus = getFiles.cpus,
-        memory = getFiles.memory
+        memory = getFiles.memory,
+        diskSize = getFiles.diskSize
     }
   }
 
@@ -49,7 +53,8 @@ workflow DiffBind {
         flag = flag,
         dockerImage = dockerImage,
         cpus = cpus,
-        memory = memory
+        memory = memory,
+        diskSize = diskSize
     }
   }
 
@@ -63,11 +68,12 @@ workflow DiffBind {
 task getFiles {
   input {
     File csv
+    Int diskFactor
     String dockerImage
   }
 
   command <<<
-    Rscript /getPaths.r '~{csv}'
+    Rscript /getPaths.r '~{csv}' '~{diskFactor}'
   >>>
 
   runtime {
@@ -80,6 +86,7 @@ task getFiles {
 
   output {
     Array[String] files = read_lines("files.txt")
+    Int diskSize = read_int('disk.txt')
     Int cpus = read_int('core.txt')
     Int memory = read_int('mem.txt')
   }
@@ -89,29 +96,30 @@ task diffBind {
   input {
     File csv
     Array[File]? files
-    Int? summits
+    Int summits
     String contrast
-    String? label
+    String label
     String? flag
     
     String dockerImage
-    Int? cpus
-    Int? memory
+    Int cpus
+    Int memory
+    Int diskSize
   }
 
   command <<<
     echo "Input csv location:" '~{csv}'
     ls -lh /cromwell_root/broad-epi-aggregated-alns
     ls -lh /cromwell_root/broad-epi-segmentations
-    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label}
+    Rscript /diffBind.r '~{csv}' ~{summits} ~{contrast} ~{label} ~{flag}
   >>>
 
   runtime {
     maxRetries: 0
     docker: dockerImage
-    disks: 'local-disk 250 HDD'
-    memory: memory + 'G'
     cpu: cpus
+    memory: memory + 'G'
+    disks: 'local-disk ' + diskSize + ' LOCAL'
   }
 
   output {
