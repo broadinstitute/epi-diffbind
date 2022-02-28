@@ -17,7 +17,7 @@ interval <- as.integer(args[2])
 modeFlag <- args[5]
 
 # Infer input directory from sample csv directory
-dir <- dirname(sample)
+# dir <- dirname(sample)
 
 # Check if inputs have been localized by looking for each file
 sample <- read.csv(sample, sep=ifelse(grepl('tsv', sample), '\t', ','))
@@ -57,7 +57,11 @@ library(GreyListChIP)
 
 # Create diffbind object
 message('Creating DBA object from sample sheet...')
+tic <- Sys.time()
 data <- dba(sampleSheet=sample)
+toc <- Sys.time()
+toc - tic
+gc()
 # date <- format(Sys.Date(), format="%Y-%m-%d")
 
 # Reduce yieldSize
@@ -100,6 +104,7 @@ if(!is.na(modeFlag)){
 
 # TODO: soft-code genome selection and parameterize pval
 message('Generating greylist...')
+tic <- Sys.time()
 load(system.file("extra/ktypes.rda", package="DiffBind"), envir = environment())
 
 # makeGreyList <- function(data, karyotype){
@@ -188,8 +193,12 @@ if(controlPresent){
 }
 
 # saveRDS(greyed, 'tmp1_blacklisted.rds')
+toc <- Sys.time()
+toc - tic
+gc()
 
 message('Counting reads...')
+tic <- Sys.time()
 if (interval == 0) {
 	counted <- dba.count(greyed, bUseSummarizeOverlaps=F, bParallel=F)
 } else {
@@ -197,7 +206,9 @@ if (interval == 0) {
 }
 
 saveRDS(counted, 'counted.rds')
-
+toc <- Sys.time()
+toc - tic
+gc()
 # message('Normalizing')
 # normalized <- dba.normalize(counted)
 
