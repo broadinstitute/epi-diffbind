@@ -36,8 +36,8 @@ workflow DiffBind {
         label = label,
         flag = flag,
         dockerImage = dockerImage,
-        cpus = getFiles.cpus,
-        memory = getFiles.memory,
+        cpus = cpus,
+        memory = memory,
         diskSize = getFiles.diskSize
     }
   }
@@ -87,8 +87,8 @@ task getFiles {
   output {
     Array[String] files = read_lines("files.txt")
     Int diskSize = read_int('disk.txt')
-    Int cpus = read_int('core.txt')
-    Int memory = read_int('mem.txt')
+    # Int cpus = read_int('core.txt')
+    # Int memory = read_int('mem.txt')
   }
 }
 
