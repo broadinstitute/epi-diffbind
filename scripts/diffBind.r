@@ -199,11 +199,8 @@ gc()
 
 message('Counting reads...')
 tic <- Sys.time()
-if (interval == 0) {
-	counted <- dba.count(greyed, bUseSummarizeOverlaps=F, bParallel=F)
-} else {
-	counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F, bParallel=F)
-}
+
+counted <- dba.count(greyed, summits=interval, bUseSummarizeOverlaps=F, bParallel=F)
 
 saveRDS(counted, 'counted.rds')
 toc <- Sys.time()
