@@ -1,6 +1,6 @@
 version: 1.2
 workflows:
    - subclass: WDL
-     primaryDescriptorPath: pipeline.wdl
+     primaryDescriptorPath: /pipeline.wdl
      
  
